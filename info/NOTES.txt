@@ -62,7 +62,7 @@ $ docker push morspin/socksess:v0.3
 Ensure app.yaml image refers to docker.io/morspin/socksess:v0.4.x
 2. docker build -t morspin/socksess .
 3. docker tag morspin/socksess:latest morspin/socksess:v0.4.x
-4. docker push morspin/socksess:v0.4.x
+4. docker push morspin/socksess: v0.4.x
 5. k apply -f k8s/app.yaml -n socksess
 6. watch k get pods,services -n socksess
 7. copy the socksess pod name
@@ -140,9 +140,27 @@ $ add the command to run the migration-upgrade to `scripts/run.sh`
 0.5.1 - first try with migrations, sqlite
 0.5.2 - first try with migrations, postgresql
 0.5.3 - ^, specify production mode to get postgres, not sqlite
-0.5.4 - type "datetime" does not exist - try sd.TIMESTAMP
+0.5.4 - type "datetime" does not exist - try sd.TIMESTAMP -- works
 
 
 2. Add blueprints (chapter 7) 
 
+0.5.5 - verify postgres works on k8s
+... couldn't get the socksess and postgres pods to show -- only a rancher internal service. So I rebuilt minikube.
+
+k create namespace socksess
+
 3. Add API endpoints (chapter 14)
+
+
+To delete images from docker.io:
+
+HUB_USERNAME=<docker username>
+HUB_PASSWORD=<docker password>
+HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${HUB_USERNAME}'", "password": "'${HUB_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+curl -i -X DELETE \
+  -H "Accept: application/json" \
+  -H "Authorization: JWT $HUB_TOKEN" \
+  https://hub.docker.com/v2/repositories/$HUB_USERNAME/<REPO>/tags/<TAG>/
+
+In a loop, sleep a second or so after each delete to avoid running into rate-limiting problems.
